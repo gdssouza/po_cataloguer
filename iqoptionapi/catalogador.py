@@ -5,16 +5,22 @@ Created on Mon Dec 28 18:20:14 2020
 @author: Anon
 """
 
+# importando bibliotecas
 import time
-# hight level api ,This api is write base on ""iqoptionapi.api" for more easy
+import numpy as np
+import pandas as pd
 from iqoptionapi.stable_api import IQ_Option
 
+# lendo informações de login
 config = open('config.txt')
 email = config.readline().strip('\n')   
 password = config.readline().strip('\n')
+
+# variaveis
 mode = 'PRACTICE'
 days = 7
 timeframe = 60
+par = 'EURUSD'
 
 # conectar com a corretora
 API = IQ_Option(email,password)
@@ -43,5 +49,29 @@ API.change_balance(mode)
 
 # lendo candles
 qtd = {60*1:1440, 60*5:288, 60*15:96}
-velas = API.get_candles('EURUSD',timeframe,days,time.time())
-print(velas)
+total_candles = int(qtd[timeframe]*days)
+if total_candles < 1000:
+    velas = API.get_candles(par, timeframe, total_candles, time.time())
+else:
+    velas = []
+    data = time.time()
+    for pacote in range(1000,total_candles,1000):
+        velas = API.get_candles(par, timeframe, pacote, data) + velas
+        intervalo = int(velas[0]['from'])-1
+        data = velas[0]['from']
+    velas = API.get_candles(par, timeframe, int(total_candles%1000), data) + velas
+            
+# convertendo para dataframe
+dic = {'id':[],'from':[],'at':[],'to':[],'open':[],'close':[],'min':[],'max':[],'volume':[]}
+for vela in velas:
+    for item in vela:
+        dic[item].append(vela[item])
+df = pd.DataFrame(dic)
+
+# convertendo timestamp para datetime
+df['date'] = pd.to_datetime(df['at'])
+
+# salvando
+df.to_csv(par+'.csv')
+
+print(df.head())
