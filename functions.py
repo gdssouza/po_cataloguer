@@ -20,9 +20,9 @@ def analisar_tendencia(df):
 
 def delta_days(start,end):
     # Data inicial
-    d1 = datetime.strptime(start, '%Y-%m-%d')
+    d1 = datetime.strptime(start, '%Y/%m/%d')
     # Data final
-    d2 = datetime.strptime(end, '%Y-%m-%d')
+    d2 = datetime.strptime(end, '%Y/%m/%d')
     return d1, d2, abs((d2 - d1).days)
 
 class catalogador(IQ_Option):
@@ -66,16 +66,18 @@ class catalogador(IQ_Option):
         
         # convertendo timestamp para datetime
         date = pd.to_datetime(df['at']).dt.floor('1min')
+        
         # filtrando dentro do intervalo start - end
         intervalo = date >= self.start
         df_filtrado = df[intervalo]
         date_filtrado = date[intervalo]
-        df_size = len(date_filtrado)
+                
         # criando multiindex
+        df_size = len(date_filtrado)
         df_filtrado.index = pd.MultiIndex.from_arrays([[self.par]*df_size, date_filtrado], names=('goal', 'date'))
         # deletando colunas redundantes
-        df_filtrado = df.drop(columns=['id','from','at','to'])                    
-    
+        df_filtrado = df_filtrado.drop(columns=['id','from','at','to'])
+        
         return df_filtrado
         
     def ler_candles(self,par,timeframe,start,end):
