@@ -7,7 +7,6 @@ Created on Mon Dec 28 18:20:14 2020
 
 # importando bibliotecas
 import time
-import numpy as np
 import pandas as pd
 from iqoptionapi.stable_api import IQ_Option
 
@@ -18,9 +17,10 @@ password = config.readline().strip('\n')
 
 # variaveis
 mode = 'PRACTICE'
-days = 7
-timeframe = 60
-par = 'EURUSD'
+days = int(input("Insira quantos dias: "))
+timeframe = int(input("Insira o timeframe em minutos: "))*60
+par = input("Insira o ativo: ")
+print()
 
 # conectar com a corretora
 API = IQ_Option(email,password)
@@ -44,7 +44,6 @@ else:
         print("No Network")
     elif reason == error_password:
         print("Error Password")
- 
 API.change_balance(mode)
 
 # lendo candles
@@ -69,9 +68,15 @@ for vela in velas:
 df = pd.DataFrame(dic)
 
 # convertendo timestamp para datetime
-df['date'] = pd.to_datetime(df['at'])
+date = pd.to_datetime(df['at']).dt.floor('1min')
+# criando multiindex
+df.index = pd.MultiIndex.from_arrays([[par]*total_candles, date], names=('goal', 'date'))
+# deletando colunas redundantes
+df = df.drop(columns=['id','from','at','to'])
 
 # salvando
-df.to_csv(par+'.csv')
+caminho = par+'.csv'
+df.to_csv(caminho)
+print("Salvo em",caminho)
 
 print(df.head())
