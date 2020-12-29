@@ -8,6 +8,9 @@ Created on Mon Dec 28 18:20:14 2020
 # importando bibliotecas
 import time
 import pandas as pd
+import os
+# enter the API directory:
+os.chdir("iqoptionapi")
 from iqoptionapi.stable_api import IQ_Option
 
 # lendo informações de login
