@@ -7,6 +7,14 @@ Created on Mon Dec 28 18:20:14 2020
 
 # API
 from functions import catalogador
+from pyfiglet import Figlet
+
+# cabecalho
+f = Figlet(font='standard')
+print(f.renderText('CATALOGUER'))
+print("By Gustavo Souza")
+print("Repository: https://github.com/gdssouza/po_bot_with_telegram")
+print()
 
 # lendo informações de login
 config = open('config.txt')
