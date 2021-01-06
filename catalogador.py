@@ -8,6 +8,7 @@ Created on Mon Dec 28 18:20:14 2020
 # API
 from functions import catalogador
 from pyfiglet import Figlet
+from time import time
 
 # cabecalho
 f = Figlet(font='standard')
@@ -21,16 +22,23 @@ config = open('config.txt')
 email = config.readline().strip('\n')   
 password = config.readline().strip('\n')
 
-start = input("Insira a data de início YYYY/MM/DD :/> ")
-end = input("Insira a data de término YYYY/MM/DD  :/> ")
-timeframe = int(input("Insira o timeframe em minutos :/> "))*60
-par = input("Insira o ativo :/> ")
-
 api = catalogador(email,password)
-df = api.ler_candles(par, timeframe, start, end)
+
+# coletando parametros
+start = input("Insira a data de início YYYY/MM/DD :/> ")
+end = input("Insira a data de término YYYY/MM/DD :/> ")
+timeframe = int(input("Insira o timeframe em minutos :/> "))*60
+goal = input("Insira o ativo :/> ")
+
+# lendo candles
+ti = time()
+df = api.ler_candles(goal, timeframe, start, end)
+tf = time()
+# imprimindo infos
+print('%i candles read in %.2f seconds'%(len(df.index),tf-ti))
 
 # salvando
-caminho = par+'.csv'
+caminho = goal+'.csv'
 df.to_csv(caminho)
 print("Salvo em",caminho)
 
