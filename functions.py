@@ -15,7 +15,7 @@ os.chdir("iqoptionapi")
 from iqoptionapi.stable_api import IQ_Option
 os.chdir('../') # back
 
-def analisar_tendencia(df, periodo):
+def analyze_trend(df, periodo):
     # recebe um dataframe com os candles
     # retorna um dataframe com a tendencia dos candles para um período
     return None
@@ -27,7 +27,7 @@ def delta_days(start,end):
     d2 = datetime.strptime(end, '%Y/%m/%d')
     return d1, d2, abs((d2 - d1).days)
 
-class catalogador(IQ_Option):
+class cataloguer(IQ_Option):
     def __init__(self,email,password):
         '''
         
@@ -46,7 +46,7 @@ class catalogador(IQ_Option):
         self.password = password
         self.API = False
 
-    def conectar(self):
+    def connect(self):
         '''
         
 
@@ -84,50 +84,50 @@ class catalogador(IQ_Option):
         self.API = API
         return self.API
            
-    def to_df(self,velas):
+    def to_df(self,candles):
         '''
         
 
         Parameters
         ----------
-        velas : TYPE
+        candles : TYPE
             DESCRIPTION.
 
         Returns
         -------
-        df_filtrado : TYPE
+        df_filtered : TYPE
             DESCRIPTION.
 
         '''
         dic = {'id':[],'from':[],'at':[],'to':[],'open':[],'close':[],'min':[],'max':[],'volume':[]}
-        for vela in velas:
-            for item in vela:
-                dic[item].append(vela[item])
+        for candle in candles:
+            for item in candle:
+                dic[item].append(candle[item])
         df = pd.DataFrame(dic)
         
         # convertendo timestamp para datetime
         date = pd.to_datetime(df['at']).dt.floor('1min')
         
-        # filtrando dentro do intervalo start - end
-        intervalo = date >= self.start
-        df_filtrado = df[intervalo]
-        date_filtrado = date[intervalo]
+        # filtrando dentro do interval start - end
+        interval = date >= self.start
+        df_filtered = df[interval]
+        date_filtered = date[interval]
                 
         # criando multiindex
-        df_size = len(date_filtrado)
-        df_filtrado.index = pd.MultiIndex.from_arrays([[self.par]*df_size, date_filtrado], names=('goal', 'date'))
+        df_size = len(date_filtered)
+        df_filtered.index = pd.MultiIndex.from_arrays([[self.goal]*df_size, date_filtered], names=('goal', 'date'))
         # deletando colunas redundantes
-        df_filtrado = df_filtrado.drop(columns=['id','from','at','to'])
+        df_filtered = df_filtered.drop(columns=['id','from','at','to'])
         
-        return df_filtrado
+        return df_filtered
         
-    def ler_candles(self,par,timeframe,start,end):
+    def read_candles(self,goal,timeframe,start,end):
         '''
         
 
         Parameters
         ----------
-        par : TYPE
+        goal : TYPE
             DESCRIPTION.
         timeframe : TYPE
             DESCRIPTION.
@@ -143,19 +143,19 @@ class catalogador(IQ_Option):
 
         '''
         start, end, days = delta_days(start,end)
-        data = datetime.timestamp(end)
-        qtd = {60*1:1440, 60*5:288, 60*15:96}
-        total_candles = int(qtd[timeframe]*days)
-        if total_candles < 1000:
-            velas = self.API.get_candles(par, timeframe, total_candles, data)
+        date = datetime.timestamp(end)
+        amount = {60*1:1440, 60*5:288, 60*15:96}
+        len_candles = int(amount[timeframe]*days)
+        if len_candles < 1000:
+            candles = self.API.get_candles(goal, timeframe, len_candles, date)
         else:
-            velas = []
-            for pacote in range(1000,total_candles,1000):
-                velas = self.API.get_candles(par, timeframe, pacote, data) + velas
-                data = velas[0]['from']
-            velas = self.API.get_candles(par, timeframe, int(total_candles%1000), data) + velas
+            candles = []
+            for pacote in range(1000,len_candles,1000):
+                candles = self.API.get_candles(goal, timeframe, pacote, date) + candles
+                date = candles[0]['from']
+            candles = self.API.get_candles(goal, timeframe, int(len_candles%1000), date) + candles
             
-        self.par = par
+        self.goal = goal
         self.start = start
         
-        return self.to_df(velas)
+        return self.to_df(candles)
