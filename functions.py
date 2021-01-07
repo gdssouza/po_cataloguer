@@ -52,8 +52,7 @@ class cataloguer(IQ_Option):
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        API : iqoptionapi.stable_api.IQ_Option(email,password)
 
         '''
         # conectar com a corretora
@@ -90,13 +89,11 @@ class cataloguer(IQ_Option):
 
         Parameters
         ----------
-        candles : TYPE
-            DESCRIPTION.
+        candles : dic
 
         Returns
         -------
-        df_filtered : TYPE
-            DESCRIPTION.
+        df_filtered : pandas DataFrame
 
         '''
         dic = {'id':[],'from':[],'at':[],'to':[],'open':[],'close':[],'min':[],'max':[],'volume':[]}
@@ -127,19 +124,14 @@ class cataloguer(IQ_Option):
 
         Parameters
         ----------
-        goal : TYPE
-            DESCRIPTION.
-        timeframe : TYPE
-            DESCRIPTION.
-        start : TYPE
-            DESCRIPTION.
-        end : TYPE
-            DESCRIPTION.
+        goal : string
+        timeframe : int
+        start : pandas datetime
+        end : pandas datetime
 
         Returns
         -------
-        TYPE
-            DESCRIPTION.
+        df : pandas DataFrame
 
         '''
         start, end, days = delta_days(start,end)
