@@ -6,7 +6,7 @@ Created on Mon Dec 28 18:20:14 2020
 """
 
 # API
-from functions import catalogador
+from functions import cataloguer
 from pyfiglet import Figlet
 from time import time
 
@@ -22,24 +22,26 @@ config = open('config.txt')
 email = config.readline().strip('\n')   
 password = config.readline().strip('\n')
 
-api = catalogador(email,password)
+# API DA IQ
+api = cataloguer(email,password)
+api.connect()
 
 # coletando parametros
-start = input("Insira a data de início YYYY/MM/DD :/> ")
-end = input("Insira a data de término YYYY/MM/DD :/> ")
-timeframe = int(input("Insira o timeframe em minutos :/> "))*60
-goal = input("Insira o ativo :/> ")
+start = input("Insert start date YYYY/MM/DD :/> ")
+end = input("Insert end date YYYY/MM/DD :/> ")
+timeframe = int(input("Insert timeframe in minutes :/> "))*60
+goal = input("Insert the goal :/> ")
 
 # lendo candles
 ti = time()
-df = api.ler_candles(goal, timeframe, start, end)
+df = api.read_candles(goal, timeframe, start, end)
 tf = time()
 # imprimindo infos
 print('%i candles read in %.2f seconds'%(len(df.index),tf-ti))
 
 # salvando
-caminho = goal+'.csv'
-df.to_csv(caminho)
-print("Salvo em",caminho)
+local = goal+'.csv'
+df.to_csv(local)
+print("Saved in",local)
 
 print(df.head())
