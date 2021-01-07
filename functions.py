@@ -15,7 +15,9 @@ os.chdir("iqoptionapi")
 from iqoptionapi.stable_api import IQ_Option
 os.chdir('../') # back
 
-def analisar_tendencia(df):
+def analisar_tendencia(df, periodo):
+    # recebe um dataframe com os candles
+    # retorna um dataframe com a tendencia dos candles para um período
     return None
 
 def delta_days(start,end):
@@ -27,8 +29,35 @@ def delta_days(start,end):
 
 class catalogador(IQ_Option):
     def __init__(self,email,password):
+        '''
+        
+
+        Parameters
+        ----------
+        email : string
+        password : string
+
+        Returns
+        -------
+        None.
+
+        '''
+        self.email = email
+        self.password = password
+        self.API = False
+
+    def conectar(self):
+        '''
+        
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        '''
         # conectar com a corretora
-        API = IQ_Option(email,password)
+        API = IQ_Option(self.email,self.password)
         error_password ="""{"code":"invalid_credentials","message":"You entered the wrong credentials. Please check that the login/password is correct."}"""
         check,reason = API.connect()
         if check:
@@ -44,20 +73,32 @@ class catalogador(IQ_Option):
                         print("Error Password")
                     else:
                         print("No Network")
+            else:
+                mode = 'PRACTICE'
+                API.change_balance(mode)
         else:
             if reason == "[Errno -2] Name or service not known":
                 print("No Network")
             elif reason == error_password:
                 print("Error Password")
-                
-        mode = 'PRACTICE'
-        API.change_balance(mode)
         self.API = API
-    
-    def get_API(self):
         return self.API
-    
+           
     def to_df(self,velas):
+        '''
+        
+
+        Parameters
+        ----------
+        velas : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        df_filtrado : TYPE
+            DESCRIPTION.
+
+        '''
         dic = {'id':[],'from':[],'at':[],'to':[],'open':[],'close':[],'min':[],'max':[],'volume':[]}
         for vela in velas:
             for item in vela:
@@ -81,6 +122,26 @@ class catalogador(IQ_Option):
         return df_filtrado
         
     def ler_candles(self,par,timeframe,start,end):
+        '''
+        
+
+        Parameters
+        ----------
+        par : TYPE
+            DESCRIPTION.
+        timeframe : TYPE
+            DESCRIPTION.
+        start : TYPE
+            DESCRIPTION.
+        end : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        '''
         start, end, days = delta_days(start,end)
         data = datetime.timestamp(end)
         qtd = {60*1:1440, 60*5:288, 60*15:96}
